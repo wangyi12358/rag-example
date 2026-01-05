@@ -6,5 +6,6 @@ import { knowledgeChunkRoute } from "./routers/knowledge-chunk/route";
 
 export const app = new Hono<Env>()
 	.use(prismaMiddleware)
-	.route("/api/knowledge-chunk", knowledgeChunkRoute)
-	.route("/api/chat", chatRoute);
+	.basePath("/api")
+	.route("/knowledge-chunk", knowledgeChunkRoute)
+	.route("/chat", chatRoute);
