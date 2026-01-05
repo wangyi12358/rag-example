@@ -1,8 +1,7 @@
 "use client";
-
-// @ts-expect-error - ai/react types may not be available, but the module exists
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import Link from "next/link";
+import { useState } from "react";
 
 interface ContextItem {
 	id: string;
@@ -21,10 +20,19 @@ interface ChatMessage {
 }
 
 export default function ChatPage() {
-	const { messages, input, handleInputChange, handleSubmit, isLoading } =
-		useChat({
-			api: "/api/chat",
-		});
+	const {
+		messages,
+		id,
+		status,
+		error,
+		sendMessage,
+		stop,
+		addToolOutput,
+		regenerate,
+		setMessages,
+	} = useChat();
+
+	const [input, setInput] = useState("");
 
 	// 从消息的 data 中提取上下文信息
 	const getContext = (message: ChatMessage): ContextItem[] | null => {
@@ -81,8 +89,7 @@ export default function ChatPage() {
 								</div>
 							</div>
 						)}
-						{(messages as ChatMessage[]).map((message: ChatMessage) => {
-							const context = getContext(message);
+						{messages.map((message) => {
 							return (
 								<div
 									key={message.id}
@@ -97,63 +104,36 @@ export default function ChatPage() {
 												: "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
 										}`}
 									>
-										<div className="whitespace-pre-wrap">{message.content}</div>
-										{/* 显示上下文信息 */}
-										{context && context.length > 0 && (
-											<details className="mt-2 text-xs">
-												<summary className="cursor-pointer opacity-70">
-													查看来源 ({context.length} 条)
-												</summary>
-												<div className="mt-2 space-y-2 border-t pt-2">
-													{context.map((ctx) => (
-														<div
-															key={ctx.id}
-															className="rounded bg-white/50 p-2 dark:bg-zinc-900/50"
-														>
-															<p className="text-xs opacity-80">
-																相似度: {(ctx.similarity * 100).toFixed(1)}%
-															</p>
-															<p className="mt-1 text-xs">
-																{ctx.content.substring(0, 200)}...
-															</p>
-															{ctx.metadata &&
-															typeof ctx.metadata === "object" ? (
-																<p className="mt-1 text-xs opacity-60">
-																	来源: {String(JSON.stringify(ctx.metadata))}
-																</p>
-															) : null}
-														</div>
-													))}
-												</div>
-											</details>
-										)}
+										<div className="whitespace-pre-wrap">
+											{message.parts
+												.map((part) => (part.type === "text" ? part.text : ""))
+												.join("")}
+										</div>
 									</div>
 								</div>
 							);
 						})}
-						{isLoading && (
-							<div className="flex justify-start">
-								<div className="rounded-lg bg-zinc-100 px-4 py-2 dark:bg-zinc-800">
-									<p className="text-zinc-600 dark:text-zinc-400">思考中...</p>
-								</div>
-							</div>
-						)}
 					</div>
 
 					{/* 输入框 */}
 					<div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
-						<form onSubmit={handleSubmit} className="flex gap-2">
+						<form className="flex gap-2">
 							<input
 								type="text"
 								value={input}
-								onChange={handleInputChange}
-								disabled={isLoading}
+								onChange={(e) => {
+									setInput(e.target.value);
+								}}
+								disabled={status !== "ready"}
 								placeholder="输入您的问题..."
 								className="flex-1 rounded-md border border-zinc-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
 							/>
 							<button
-								type="submit"
-								disabled={isLoading || !input.trim()}
+								type="button"
+								onClick={() => {
+									sendMessage({ text: input });
+									setInput("");
+								}}
 								className="rounded-md bg-green-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								发送

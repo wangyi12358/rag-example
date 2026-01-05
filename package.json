@@ -12,6 +12,7 @@
     "prisma": "pnpm db:generate && pnpm db:push"
   },
   "dependencies": {
+    "@ai-sdk/react": "^3.0.7",
     "@hono/zod-validator": "^0.7.6",
     "@openrouter/ai-sdk-provider": "^1.5.4",
     "@openrouter/sdk": "^0.3.11",

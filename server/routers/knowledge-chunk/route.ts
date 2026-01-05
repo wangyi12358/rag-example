@@ -21,9 +21,11 @@ export const knowledgeChunkRoute = factory.createApp().post(
 		const db = c.get("db");
 		// 生成嵌入向量
 		const response = await openRouter.embeddings.generate({
-			model: "openai/text-embedding-3-small",
+			model: "qwen/qwen3-embedding-8b",
 			input: text,
 		});
+
+		console.log(response);
 
 		// OpenRouter 返回的格式可能是 { data: [...] } 或直接是数组
 		const embeddingData = Array.isArray(response)

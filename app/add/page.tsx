@@ -63,7 +63,7 @@ export default function AddKnowledgePage() {
 						添加知识
 					</h1>
 
-					<form onSubmit={handleSubmit} className="space-y-6">
+					<form className="space-y-6">
 						<div>
 							<label
 								htmlFor="text"
@@ -117,7 +117,8 @@ export default function AddKnowledgePage() {
 
 						<div className="flex justify-end">
 							<button
-								type="submit"
+								type="button"
+								onClick={handleSubmit}
 								disabled={loading}
 								className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 							>
